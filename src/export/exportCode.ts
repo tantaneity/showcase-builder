@@ -45,11 +45,40 @@ const cssTextToStyleObject = (cssText: string): string => {
   return `{ ${entries.join(', ')} }`
 }
 
+const INDENT_UNIT = '  '
+
+const indentMarkup = (markup: string): string => {
+  let depth = 0
+  return markup
+    .split('\n')
+    .map((rawLine) => {
+      const line = rawLine.trim()
+      if (line.length === 0) {
+        return ''
+      }
+      const isClose = line.startsWith('</')
+      const isSelfClose = line.endsWith('/>')
+      const isOpenOnly =
+        line.startsWith('<') && !isClose && !isSelfClose && !line.includes('</') && line.endsWith('>')
+      if (isClose) {
+        depth = Math.max(0, depth - 1)
+      }
+      const output = INDENT_UNIT.repeat(depth) + line
+      if (isOpenOnly) {
+        depth += 1
+      }
+      return output
+    })
+    .join('\n')
+}
+
 const markupToJsx = (markup: string): string =>
-  stripDataPart(formatMarkup(markup))
-    .replace(/{/g, '&#123;')
-    .replace(/}/g, '&#125;')
-    .replace(/style="([^"]*)"/g, (_, cssText: string) => `style={${cssTextToStyleObject(cssText)}}`)
+  indentMarkup(
+    stripDataPart(formatMarkup(markup))
+      .replace(/{/g, '&#123;')
+      .replace(/}/g, '&#125;')
+      .replace(/style="([^"]*)"/g, (_, cssText: string) => `style={${cssTextToStyleObject(cssText)}}`),
+  )
 
 const renderRawMarkup = ({ templateId, card, theme }: CardExportInput): string =>
   renderToStaticMarkup(createElement(CardRenderer, { templateId, card, theme }))
@@ -149,7 +178,7 @@ const buildHtmlDocument = (rawMarkup: string, title: string): string =>
 <style>body { margin: 0; }</style>
 </head>
 <body>
-${stripDataPart(formatMarkup(rawMarkup))}
+${indentMarkup(stripDataPart(formatMarkup(rawMarkup)))}
 </body>
 </html>
 `
