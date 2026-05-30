@@ -20,8 +20,15 @@ const escapeHtmlText = (value: string): string =>
 const toCamelCase = (property: string): string =>
   property.replace(/-([a-z])/g, (_, char: string) => char.toUpperCase())
 
+const decodeEntities = (value: string): string =>
+  value
+    .replace(/&#x27;/g, "'")
+    .replace(/&#39;/g, "'")
+    .replace(/&quot;/g, '"')
+    .replace(/&amp;/g, '&')
+
 const cssTextToStyleObject = (cssText: string): string => {
-  const entries = cssText
+  const entries = decodeEntities(cssText)
     .split(';')
     .map((declaration) => declaration.trim())
     .filter((declaration) => declaration.length > 0)
@@ -29,7 +36,7 @@ const cssTextToStyleObject = (cssText: string): string => {
       const separatorIndex = declaration.indexOf(':')
       const property = declaration.slice(0, separatorIndex).trim()
       const value = declaration.slice(separatorIndex + 1).trim()
-      return `${toCamelCase(property)}: "${value}"`
+      return `${toCamelCase(property)}: ${JSON.stringify(value)}`
     })
   return `{ ${entries.join(', ')} }`
 }
@@ -40,8 +47,10 @@ const markupToJsx = (markup: string): string =>
     .replace(/}/g, '&#125;')
     .replace(/style="([^"]*)"/g, (_, cssText: string) => `style={${cssTextToStyleObject(cssText)}}`)
 
+const formatMarkup = (markup: string): string => markup.replace(/></g, '>\n<')
+
 const renderMarkup = ({ templateId, card, theme }: CardExportInput): string =>
-  renderToStaticMarkup(createElement(CardRenderer, { templateId, card, theme }))
+  formatMarkup(renderToStaticMarkup(createElement(CardRenderer, { templateId, card, theme })))
 
 const downloadText = (text: string, fileName: string, mime: string): void => {
   const blob = new Blob([text], { type: mime })
@@ -73,11 +82,17 @@ ${jsx}
 )
 `
 
-export const exportCardCode = (input: CardExportInput, format: CodeExportFormat): void => {
+export const buildCardCode = (input: CardExportInput, format: CodeExportFormat): string => {
   const markup = renderMarkup(input)
-  if (format === 'html') {
-    downloadText(buildHtmlDocument(markup, input.card.title), `${input.fileSlug}.html`, 'text/html')
-    return
-  }
-  downloadText(buildReactComponent(markupToJsx(markup)), 'ShowcaseCard.tsx', 'text/plain')
+  return format === 'html'
+    ? buildHtmlDocument(markup, input.card.title)
+    : buildReactComponent(markupToJsx(markup))
+}
+
+const codeFileName = (input: CardExportInput, format: CodeExportFormat): string =>
+  format === 'html' ? `${input.fileSlug}.html` : 'ShowcaseCard.tsx'
+
+export const downloadCardCode = (input: CardExportInput, format: CodeExportFormat): void => {
+  const mime = format === 'html' ? 'text/html' : 'text/plain'
+  downloadText(buildCardCode(input, format), codeFileName(input, format), mime)
 }

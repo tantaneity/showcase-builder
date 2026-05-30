@@ -6,19 +6,16 @@ import {
 } from '../../constants'
 import { exportCardImage } from '../../export/exportImage'
 import type { ImageExportFormat } from '../../export/exportImage'
-import { exportCardCode } from '../../export/exportCode'
-import type { CodeExportFormat } from '../../export/exportCode'
 import { useActiveCard } from '../../state/useActiveCard'
-import { useDocumentStore } from '../../state/documentStore'
 import { toFileSlug } from '../../utils/slug'
+import { CodeModal } from './CodeModal'
 
 export const ExportBar = () => {
   const activeCard = useActiveCard()
-  const templateId = useDocumentStore((state) => state.document.templateId)
-  const theme = useDocumentStore((state) => state.document.theme)
   const [scale, setScale] = useState<number>(DEFAULT_EXPORT_SCALE)
   const [isExporting, setIsExporting] = useState(false)
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
+  const [isCodeOpen, setIsCodeOpen] = useState(false)
 
   const runImageExport = async (format: ImageExportFormat): Promise<void> => {
     const node = document.getElementById(CARD_EXPORT_NODE_ID)
@@ -34,18 +31,6 @@ export const ExportBar = () => {
       setErrorMessage(error instanceof Error ? error.message : 'Export failed')
     } finally {
       setIsExporting(false)
-    }
-  }
-
-  const runCodeExport = (format: CodeExportFormat): void => {
-    try {
-      exportCardCode(
-        { templateId, card: activeCard, theme, fileSlug: toFileSlug(activeCard.title) },
-        format,
-      )
-      setErrorMessage(null)
-    } catch (error) {
-      setErrorMessage(error instanceof Error ? error.message : 'Export failed')
     }
   }
 
@@ -81,13 +66,11 @@ export const ExportBar = () => {
       >
         SVG
       </button>
-      <button type="button" className="button" onClick={() => runCodeExport('html')}>
-        HTML
-      </button>
-      <button type="button" className="button" onClick={() => runCodeExport('react')}>
-        React
+      <button type="button" className="button" onClick={() => setIsCodeOpen(true)}>
+        {'Code </>'}
       </button>
       {errorMessage !== null && <span className="export-bar__error">{errorMessage}</span>}
+      {isCodeOpen && <CodeModal onClose={() => setIsCodeOpen(false)} />}
     </div>
   )
 }
