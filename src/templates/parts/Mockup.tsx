@@ -23,13 +23,26 @@ const buildFrameTransform = (tilt: number): CSSProperties =>
 const buildShadow = (hasShadow: boolean): CSSProperties =>
   hasShadow ? { boxShadow: '0 40px 90px rgba(0, 0, 0, 0.55)' } : {}
 
-const Screenshot = ({ slot, altText }: { slot: ScreenshotSlot; altText: string }) => (
-  <img
-    src={slot.dataUrl}
-    alt={altText}
-    style={{ display: 'block', width: '100%', height: '100%', objectFit: 'cover' }}
-  />
-)
+const Screenshot = ({ slot, altText }: { slot: ScreenshotSlot; altText: string }) => {
+  const { scale, offsetX, offsetY } = slot.adjust
+  return (
+    <div style={{ width: '100%', height: '100%', overflow: 'hidden' }}>
+      <img
+        src={slot.dataUrl}
+        alt={altText}
+        style={{
+          display: 'block',
+          width: '100%',
+          height: '100%',
+          objectFit: 'cover',
+          objectPosition: `${50 + offsetX}% ${50 + offsetY}%`,
+          transform: `scale(${scale})`,
+          transformOrigin: 'center',
+        }}
+      />
+    </div>
+  )
+}
 
 interface MockupProps {
   readonly slot: ScreenshotSlot

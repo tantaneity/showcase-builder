@@ -4,6 +4,7 @@ import { MAX_SCREENSHOTS, STORAGE_KEY, STORAGE_SCHEMA_VERSION } from '../constan
 import { createEmptyCard, createEmptyDocument } from '../model/defaults'
 import type {
   CardContentPatch,
+  ScreenshotAdjustPatch,
   ScreenshotSlot,
   ShowcaseCard,
   ShowcaseDocument,
@@ -26,6 +27,7 @@ interface DocumentActions {
   updateActiveCard: (patch: CardContentPatch) => void
   addActiveScreenshot: (screenshot: ScreenshotSlot) => void
   removeActiveScreenshot: (index: number) => void
+  updateScreenshotAdjust: (index: number, patch: ScreenshotAdjustPatch) => void
   replaceDocument: (document: ShowcaseDocument) => void
 }
 
@@ -108,6 +110,21 @@ export const useDocumentStore = create<DocumentStore>()(
             cards: mapActiveCard(state, (card) => ({
               ...card,
               screenshots: card.screenshots.filter((_, position) => position !== index),
+            })),
+          },
+        })),
+
+      updateScreenshotAdjust: (index, patch) =>
+        set((state) => ({
+          document: {
+            ...state.document,
+            cards: mapActiveCard(state, (card) => ({
+              ...card,
+              screenshots: card.screenshots.map((screenshot, position) =>
+                position === index
+                  ? { ...screenshot, adjust: { ...screenshot.adjust, ...patch } }
+                  : screenshot,
+              ),
             })),
           },
         })),

@@ -1,6 +1,12 @@
 import { DOCUMENT_VERSION } from '../constants'
 import { getDefaultTheme } from '../templates/registry'
-import type { ShowcaseCard, ShowcaseDocument, TemplateId } from './document'
+import type { ScreenshotAdjust, ShowcaseCard, ShowcaseDocument, TemplateId } from './document'
+
+export const DEFAULT_SCREENSHOT_ADJUST: ScreenshotAdjust = {
+  scale: 1,
+  offsetX: 0,
+  offsetY: 0,
+}
 
 const DEFAULT_TEMPLATE_ID: TemplateId = 'dark-editorial'
 

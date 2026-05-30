@@ -1,11 +1,13 @@
 import { MOCKUP_FRAMES } from '../constants'
 import type {
   MockupFrame,
+  ScreenshotAdjust,
   ScreenshotSlot,
   ShowcaseCard,
   ShowcaseDocument,
   TemplateId,
 } from '../model/document'
+import { DEFAULT_SCREENSHOT_ADJUST } from '../model/defaults'
 import type {
   BackgroundKind,
   CardTheme,
@@ -80,11 +82,22 @@ const parseTheme = (value: unknown, templateId: TemplateId): CardTheme => {
   }
 }
 
+const parseAdjust = (value: unknown): ScreenshotAdjust => {
+  if (!isRecord(value)) {
+    return DEFAULT_SCREENSHOT_ADJUST
+  }
+  return {
+    scale: pickNumber(value.scale, DEFAULT_SCREENSHOT_ADJUST.scale),
+    offsetX: pickNumber(value.offsetX, DEFAULT_SCREENSHOT_ADJUST.offsetX),
+    offsetY: pickNumber(value.offsetY, DEFAULT_SCREENSHOT_ADJUST.offsetY),
+  }
+}
+
 const parseScreenshot = (value: unknown): ScreenshotSlot => {
   if (!isRecord(value) || typeof value.dataUrl !== 'string' || typeof value.fileName !== 'string') {
     throw new DocumentParseError('Invalid screenshot slot')
   }
-  return { dataUrl: value.dataUrl, fileName: value.fileName }
+  return { dataUrl: value.dataUrl, fileName: value.fileName, adjust: parseAdjust(value.adjust) }
 }
 
 const parseScreenshots = (card: Record<string, unknown>): readonly ScreenshotSlot[] => {

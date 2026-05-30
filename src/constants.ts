@@ -1,5 +1,5 @@
-export const DOCUMENT_VERSION = 3
-export const STORAGE_SCHEMA_VERSION = 3
+export const DOCUMENT_VERSION = 4
+export const STORAGE_SCHEMA_VERSION = 4
 
 export const STORAGE_KEY = 'showcase-builder:document'
 export const PROJECT_FILE_EXTENSION = 'showcase.json'
@@ -19,6 +19,10 @@ export const ACCEPTED_IMAGE_TYPES = [
 export const MOCKUP_FRAMES = ['browser', 'phone', 'none'] as const
 
 export const MAX_SCREENSHOTS = 4
+
+export const ADJUST_MIN_SCALE = 1
+export const ADJUST_MAX_SCALE = 3
+export const ADJUST_OFFSET_RANGE = 50
 
 export const MAX_STACK_TAGS = 8
 export const MAX_TITLE_LENGTH = 80

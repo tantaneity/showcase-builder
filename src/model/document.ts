@@ -11,10 +11,19 @@ export type TemplateId =
 
 export type MockupFrame = (typeof MOCKUP_FRAMES)[number]
 
+export interface ScreenshotAdjust {
+  readonly scale: number
+  readonly offsetX: number
+  readonly offsetY: number
+}
+
 export interface ScreenshotSlot {
   readonly dataUrl: string
   readonly fileName: string
+  readonly adjust: ScreenshotAdjust
 }
+
+export type ScreenshotAdjustPatch = Partial<ScreenshotAdjust>
 
 export interface ShowcaseCard {
   readonly id: string
