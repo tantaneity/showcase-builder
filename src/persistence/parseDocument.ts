@@ -80,14 +80,21 @@ const parseTheme = (value: unknown, templateId: TemplateId): CardTheme => {
   }
 }
 
-const parseScreenshot = (value: unknown): ScreenshotSlot | null => {
-  if (value === null || value === undefined) {
-    return null
-  }
+const parseScreenshot = (value: unknown): ScreenshotSlot => {
   if (!isRecord(value) || typeof value.dataUrl !== 'string' || typeof value.fileName !== 'string') {
     throw new DocumentParseError('Invalid screenshot slot')
   }
   return { dataUrl: value.dataUrl, fileName: value.fileName }
+}
+
+const parseScreenshots = (card: Record<string, unknown>): readonly ScreenshotSlot[] => {
+  if (Array.isArray(card.screenshots)) {
+    return card.screenshots.map(parseScreenshot)
+  }
+  if (card.screenshot !== null && card.screenshot !== undefined) {
+    return [parseScreenshot(card.screenshot)]
+  }
+  return []
 }
 
 const parseStack = (value: unknown): readonly string[] => {
@@ -115,7 +122,7 @@ const parseCard = (value: unknown): ShowcaseCard => {
     description: value.description,
     stack: parseStack(value.stack),
     mockupFrame: value.mockupFrame,
-    screenshot: parseScreenshot(value.screenshot),
+    screenshots: parseScreenshots(value),
   }
 }
 

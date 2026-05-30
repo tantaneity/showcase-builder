@@ -1,10 +1,10 @@
 import type { CSSProperties } from 'react'
+import type { MockupFrame, ScreenshotSlot } from '../../model/document'
 import { isLightColor } from '../../utils/color'
-import type { RenderContext } from '../types'
+import { BROWSER_BODY_ASPECT, CHROME_BAR_HEIGHT, PHONE_OUTER_ASPECT } from '../mockupSize'
+import type { CardTheme, VariantStyle } from '../types'
 
 const TRAFFIC_LIGHTS = ['#ff5f57', '#febc2e', '#28c840']
-const BROWSER_ASPECT = 0.64
-const PHONE_ASPECT = 2
 const PERSPECTIVE_PX = 1400
 
 const chromeColors = (backgroundFrom: string) => {
@@ -18,89 +18,60 @@ const chromeColors = (backgroundFrom: string) => {
 }
 
 const buildFrameTransform = (tilt: number): CSSProperties =>
-  tilt === 0
-    ? {}
-    : {
-        transform: `perspective(${PERSPECTIVE_PX}px) rotateY(${tilt}deg) rotateX(4deg)`,
-      }
+  tilt === 0 ? {} : { transform: `perspective(${PERSPECTIVE_PX}px) rotateY(${tilt}deg) rotateX(4deg)` }
 
 const buildShadow = (hasShadow: boolean): CSSProperties =>
   hasShadow ? { boxShadow: '0 40px 90px rgba(0, 0, 0, 0.55)' } : {}
 
-interface ScreenshotProps {
-  readonly dataUrl: string | null
-  readonly altText: string
-  readonly placeholderColor: string
-}
+const Screenshot = ({ slot, altText }: { slot: ScreenshotSlot; altText: string }) => (
+  <img
+    src={slot.dataUrl}
+    alt={altText}
+    style={{ display: 'block', width: '100%', height: '100%', objectFit: 'cover' }}
+  />
+)
 
-const Screenshot = ({ dataUrl, altText, placeholderColor }: ScreenshotProps) =>
-  dataUrl !== null ? (
-    <img
-      src={dataUrl}
-      alt={altText}
-      style={{ display: 'block', width: '100%', height: '100%', objectFit: 'cover' }}
-    />
-  ) : (
-    <div
-      style={{
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        width: '100%',
-        height: '100%',
-        background: placeholderColor,
-        color: 'rgba(150,150,160,0.9)',
-        fontSize: 16,
-      }}
-    >
-      Add a screenshot
-    </div>
-  )
-
-interface MockupProps extends RenderContext {
+interface MockupProps {
+  readonly slot: ScreenshotSlot
+  readonly frame: MockupFrame
+  readonly theme: CardTheme
+  readonly variant: VariantStyle
   readonly width: number
+  readonly altText: string
 }
 
-export const Mockup = ({ card, theme, variant, width }: MockupProps) => {
+export const Mockup = ({ slot, frame, theme, variant, width, altText }: MockupProps) => {
   const colors = chromeColors(theme.backgroundFrom)
   const frameStyle: CSSProperties = {
     ...buildFrameTransform(theme.mockupTilt),
     ...buildShadow(theme.mockupShadow),
     borderRadius: variant.mockupRadius,
-    border:
-      variant.frameBorderWidth > 0
-        ? `${variant.frameBorderWidth}px solid ${theme.textPrimary}`
-        : 'none',
+    border: variant.frameBorderWidth > 0 ? `${variant.frameBorderWidth}px solid ${theme.textPrimary}` : 'none',
     overflow: 'hidden',
   }
 
-  if (card.mockupFrame === 'phone') {
+  if (frame === 'phone') {
+    const height = width * PHONE_OUTER_ASPECT
     return (
-      <div
-        style={{
-          ...frameStyle,
-          width: width * 0.55,
-          height: width * 0.55 * PHONE_ASPECT,
-          padding: 12,
-          background: colors.chrome,
-        }}
-      >
+      <div style={{ ...frameStyle, width, height, padding: 12, background: colors.chrome }}>
         <div style={{ width: '100%', height: '100%', borderRadius: Math.max(0, variant.mockupRadius - 8), overflow: 'hidden' }}>
-          <Screenshot dataUrl={card.screenshot?.dataUrl ?? null} altText={card.title} placeholderColor={colors.bar} />
+          <Screenshot slot={slot} altText={altText} />
         </div>
       </div>
     )
   }
 
+  const showChrome = frame === 'browser' && variant.showBrowserChrome
   return (
     <div style={{ ...frameStyle, width }}>
-      {variant.showBrowserChrome && (
+      {showChrome && (
         <div
           style={{
             display: 'flex',
             alignItems: 'center',
             gap: 8,
-            padding: '12px 16px',
+            height: CHROME_BAR_HEIGHT,
+            padding: '0 16px',
             background: colors.chrome,
             borderBottom: `1px solid ${colors.border}`,
           }}
@@ -111,8 +82,8 @@ export const Mockup = ({ card, theme, variant, width }: MockupProps) => {
           <div style={{ marginLeft: 12, flex: 1, height: 22, borderRadius: 999, background: colors.pill }} />
         </div>
       )}
-      <div style={{ width: '100%', height: width * BROWSER_ASPECT, background: colors.bar }}>
-        <Screenshot dataUrl={card.screenshot?.dataUrl ?? null} altText={card.title} placeholderColor={colors.bar} />
+      <div style={{ width: '100%', height: width * BROWSER_BODY_ASPECT, background: colors.bar }}>
+        <Screenshot slot={slot} altText={altText} />
       </div>
     </div>
   )

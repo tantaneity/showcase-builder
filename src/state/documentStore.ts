@@ -1,6 +1,6 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
-import { STORAGE_KEY, STORAGE_SCHEMA_VERSION } from '../constants'
+import { MAX_SCREENSHOTS, STORAGE_KEY, STORAGE_SCHEMA_VERSION } from '../constants'
 import { createEmptyCard, createEmptyDocument } from '../model/defaults'
 import type {
   CardContentPatch,
@@ -24,7 +24,8 @@ interface DocumentActions {
   removeCard: (cardId: string) => void
   setActiveCard: (cardId: string) => void
   updateActiveCard: (patch: CardContentPatch) => void
-  setActiveScreenshot: (screenshot: ScreenshotSlot | null) => void
+  addActiveScreenshot: (screenshot: ScreenshotSlot) => void
+  removeActiveScreenshot: (index: number) => void
   replaceDocument: (document: ShowcaseDocument) => void
 }
 
@@ -88,11 +89,26 @@ export const useDocumentStore = create<DocumentStore>()(
           },
         })),
 
-      setActiveScreenshot: (screenshot) =>
+      addActiveScreenshot: (screenshot) =>
         set((state) => ({
           document: {
             ...state.document,
-            cards: mapActiveCard(state, (card) => ({ ...card, screenshot })),
+            cards: mapActiveCard(state, (card) =>
+              card.screenshots.length >= MAX_SCREENSHOTS
+                ? card
+                : { ...card, screenshots: [...card.screenshots, screenshot] },
+            ),
+          },
+        })),
+
+      removeActiveScreenshot: (index) =>
+        set((state) => ({
+          document: {
+            ...state.document,
+            cards: mapActiveCard(state, (card) => ({
+              ...card,
+              screenshots: card.screenshots.filter((_, position) => position !== index),
+            })),
           },
         })),
 

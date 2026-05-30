@@ -22,7 +22,7 @@ export interface ShowcaseCard {
   readonly description: string
   readonly stack: readonly string[]
   readonly mockupFrame: MockupFrame
-  readonly screenshot: ScreenshotSlot | null
+  readonly screenshots: readonly ScreenshotSlot[]
 }
 
 export interface ShowcaseDocument {

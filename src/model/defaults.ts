@@ -15,7 +15,7 @@ export const createEmptyCard = (): ShowcaseCard => ({
   description: DEFAULT_CARD_DESCRIPTION,
   stack: [],
   mockupFrame: 'browser',
-  screenshot: null,
+  screenshots: [],
 })
 
 export const createEmptyDocument = (): ShowcaseDocument => ({

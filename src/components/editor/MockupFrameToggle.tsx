@@ -6,6 +6,7 @@ import { useDocumentStore } from '../../state/documentStore'
 const FRAME_LABELS: Record<MockupFrame, string> = {
   browser: 'Browser',
   phone: 'Phone',
+  none: 'Plain',
 }
 
 export const MockupFrameToggle = () => {

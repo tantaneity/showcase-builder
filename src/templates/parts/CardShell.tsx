@@ -1,16 +1,14 @@
 import type { CSSProperties, ReactNode } from 'react'
-import { CARD_HEIGHT_PX, CARD_WIDTH_PX } from '../../constants'
+import { CARD_BASE_PADDING_PX, CARD_HEIGHT_PX, CARD_WIDTH_PX } from '../../constants'
 import { resolveBackground, resolveFontStack } from '../../model/theme'
 import type { RenderContext } from '../types'
-
-const BASE_PADDING_PX = 72
 
 interface CardShellProps extends RenderContext {
   readonly children: ReactNode
 }
 
 export const CardShell = ({ theme, variant, children }: CardShellProps) => {
-  const padding = Math.round(BASE_PADDING_PX * theme.paddingScale)
+  const padding = Math.round(CARD_BASE_PADDING_PX * theme.paddingScale)
 
   const rootStyle: CSSProperties = {
     position: 'relative',
