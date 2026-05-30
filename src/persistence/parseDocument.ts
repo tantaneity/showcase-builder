@@ -6,8 +6,26 @@ import type {
   ShowcaseDocument,
   TemplateId,
 } from '../model/document'
+import type {
+  BackgroundKind,
+  CardTheme,
+  FontFamilyId,
+  MockupSide,
+} from '../model/theme'
+import { FONT_FAMILIES } from '../model/theme'
+import { getDefaultTheme } from '../templates/registry'
 
-const SUPPORTED_TEMPLATE_IDS: readonly TemplateId[] = ['dark-editorial']
+const SUPPORTED_TEMPLATE_IDS: readonly TemplateId[] = [
+  'dark-editorial',
+  'light-clean',
+  'brutalist',
+  'gradient-glow',
+  'minimal-mono',
+  'spotlight',
+]
+
+const BACKGROUND_KINDS: readonly BackgroundKind[] = ['solid', 'gradient']
+const MOCKUP_SIDES: readonly MockupSide[] = ['left', 'right']
 
 export class DocumentParseError extends Error {
   constructor(message: string) {
@@ -24,6 +42,43 @@ const isMockupFrame = (value: unknown): value is MockupFrame =>
 
 const isTemplateId = (value: unknown): value is TemplateId =>
   typeof value === 'string' && (SUPPORTED_TEMPLATE_IDS as readonly string[]).includes(value)
+
+const pickString = (value: unknown, fallback: string): string =>
+  typeof value === 'string' ? value : fallback
+
+const pickNumber = (value: unknown, fallback: number): number =>
+  typeof value === 'number' && Number.isFinite(value) ? value : fallback
+
+const pickBoolean = (value: unknown, fallback: boolean): boolean =>
+  typeof value === 'boolean' ? value : fallback
+
+const pickFont = (value: unknown, fallback: FontFamilyId): FontFamilyId =>
+  typeof value === 'string' && value in FONT_FAMILIES ? (value as FontFamilyId) : fallback
+
+const pickFromList = <T extends string>(value: unknown, list: readonly T[], fallback: T): T =>
+  typeof value === 'string' && (list as readonly string[]).includes(value) ? (value as T) : fallback
+
+const parseTheme = (value: unknown, templateId: TemplateId): CardTheme => {
+  const fallback = getDefaultTheme(templateId)
+  if (!isRecord(value)) {
+    return fallback
+  }
+  return {
+    backgroundKind: pickFromList(value.backgroundKind, BACKGROUND_KINDS, fallback.backgroundKind),
+    backgroundFrom: pickString(value.backgroundFrom, fallback.backgroundFrom),
+    backgroundTo: pickString(value.backgroundTo, fallback.backgroundTo),
+    backgroundAngle: pickNumber(value.backgroundAngle, fallback.backgroundAngle),
+    accent: pickString(value.accent, fallback.accent),
+    textPrimary: pickString(value.textPrimary, fallback.textPrimary),
+    textSecondary: pickString(value.textSecondary, fallback.textSecondary),
+    fontFamily: pickFont(value.fontFamily, fallback.fontFamily),
+    mockupTilt: pickNumber(value.mockupTilt, fallback.mockupTilt),
+    mockupShadow: pickBoolean(value.mockupShadow, fallback.mockupShadow),
+    mockupSide: pickFromList(value.mockupSide, MOCKUP_SIDES, fallback.mockupSide),
+    paddingScale: pickNumber(value.paddingScale, fallback.paddingScale),
+    showGlow: pickBoolean(value.showGlow, fallback.showGlow),
+  }
+}
 
 const parseScreenshot = (value: unknown): ScreenshotSlot | null => {
   if (value === null || value === undefined) {
@@ -80,6 +135,7 @@ export const parseDocument = (raw: unknown): ShowcaseDocument => {
   return {
     version: raw.version,
     templateId: raw.templateId,
+    theme: parseTheme(raw.theme, raw.templateId),
     cards: raw.cards.map(parseCard),
   }
 }

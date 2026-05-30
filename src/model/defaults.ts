@@ -1,4 +1,5 @@
 import { DOCUMENT_VERSION } from '../constants'
+import { getDefaultTheme } from '../templates/registry'
 import type { ShowcaseCard, ShowcaseDocument, TemplateId } from './document'
 
 const DEFAULT_TEMPLATE_ID: TemplateId = 'dark-editorial'
@@ -20,5 +21,6 @@ export const createEmptyCard = (): ShowcaseCard => ({
 export const createEmptyDocument = (): ShowcaseDocument => ({
   version: DOCUMENT_VERSION,
   templateId: DEFAULT_TEMPLATE_ID,
+  theme: getDefaultTheme(DEFAULT_TEMPLATE_ID),
   cards: [createEmptyCard()],
 })

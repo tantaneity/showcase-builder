@@ -1,4 +1,5 @@
-export const DOCUMENT_VERSION = 1
+export const DOCUMENT_VERSION = 2
+export const STORAGE_SCHEMA_VERSION = 2
 
 export const STORAGE_KEY = 'showcase-builder:document'
 export const PROJECT_FILE_EXTENSION = 'showcase.json'

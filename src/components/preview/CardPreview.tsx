@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { CARD_EXPORT_NODE_ID, CARD_HEIGHT_PX, CARD_WIDTH_PX } from '../../constants'
 import { useActiveCard } from '../../state/useActiveCard'
 import { useDocumentStore } from '../../state/documentStore'
-import { getTemplate } from '../../templates/registry'
+import { CardRenderer } from '../../templates/CardRenderer'
 
 const MAX_PREVIEW_SCALE = 1
 
@@ -30,9 +30,9 @@ const useFitScale = (naturalWidth: number) => {
 
 export const CardPreview = () => {
   const templateId = useDocumentStore((state) => state.document.templateId)
+  const theme = useDocumentStore((state) => state.document.theme)
   const activeCard = useActiveCard()
   const { containerRef, scale } = useFitScale(CARD_WIDTH_PX)
-  const { Component } = getTemplate(templateId)
 
   return (
     <div ref={containerRef} className="card-preview">
@@ -48,7 +48,7 @@ export const CardPreview = () => {
             id={CARD_EXPORT_NODE_ID}
             style={{ width: CARD_WIDTH_PX, height: CARD_HEIGHT_PX }}
           >
-            <Component card={activeCard} />
+            <CardRenderer templateId={templateId} card={activeCard} theme={theme} />
           </div>
         </div>
       </div>

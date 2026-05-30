@@ -1,6 +1,6 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
-import { STORAGE_KEY } from '../constants'
+import { STORAGE_KEY, STORAGE_SCHEMA_VERSION } from '../constants'
 import { createEmptyCard, createEmptyDocument } from '../model/defaults'
 import type {
   CardContentPatch,
@@ -9,6 +9,8 @@ import type {
   ShowcaseDocument,
   TemplateId,
 } from '../model/document'
+import type { CardThemePatch } from '../model/theme'
+import { getDefaultTheme } from '../templates/registry'
 
 interface DocumentState {
   readonly document: ShowcaseDocument
@@ -17,6 +19,7 @@ interface DocumentState {
 
 interface DocumentActions {
   setTemplate: (templateId: TemplateId) => void
+  setTheme: (patch: CardThemePatch) => void
   addCard: () => void
   removeCard: (cardId: string) => void
   setActiveCard: (cardId: string) => void
@@ -46,7 +49,14 @@ export const useDocumentStore = create<DocumentStore>()(
       ...createInitialState(),
 
       setTemplate: (templateId) =>
-        set((state) => ({ document: { ...state.document, templateId } })),
+        set((state) => ({
+          document: { ...state.document, templateId, theme: getDefaultTheme(templateId) },
+        })),
+
+      setTheme: (patch) =>
+        set((state) => ({
+          document: { ...state.document, theme: { ...state.document.theme, ...patch } },
+        })),
 
       addCard: () =>
         set((state) => {
@@ -91,6 +101,8 @@ export const useDocumentStore = create<DocumentStore>()(
     }),
     {
       name: STORAGE_KEY,
+      version: STORAGE_SCHEMA_VERSION,
+      migrate: () => createInitialState(),
       partialize: (state) => ({
         document: state.document,
         activeCardId: state.activeCardId,

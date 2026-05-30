@@ -1,6 +1,13 @@
 import { MOCKUP_FRAMES } from '../constants'
+import type { CardTheme } from './theme'
 
-export type TemplateId = 'dark-editorial'
+export type TemplateId =
+  | 'dark-editorial'
+  | 'light-clean'
+  | 'brutalist'
+  | 'gradient-glow'
+  | 'minimal-mono'
+  | 'spotlight'
 
 export type MockupFrame = (typeof MOCKUP_FRAMES)[number]
 
@@ -21,6 +28,7 @@ export interface ShowcaseCard {
 export interface ShowcaseDocument {
   readonly version: number
   readonly templateId: TemplateId
+  readonly theme: CardTheme
   readonly cards: readonly ShowcaseCard[]
 }
 
