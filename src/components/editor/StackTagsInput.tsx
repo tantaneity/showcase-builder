@@ -39,11 +39,11 @@ export const StackTagsInput = () => {
       <span className="field__label">Stack</span>
       <div className="tags">
         {activeCard.stack.map((tag) => (
-          <span key={tag} className="tag">
+          <span key={tag} className="stack-chip">
             {tag}
             <button
               type="button"
-              className="tag__remove"
+              className="stack-chip__remove"
               aria-label={`Remove ${tag}`}
               onClick={() => removeTag(tag)}
             >
