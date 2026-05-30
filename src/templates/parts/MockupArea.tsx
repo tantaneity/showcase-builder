@@ -31,14 +31,16 @@ export const MockupArea = ({ card, theme, variant, maxWidth, maxHeight }: Mockup
 
   if (count === 1) {
     return (
-      <Mockup
-        slot={slots[0]!}
-        frame={card.mockupFrame}
-        theme={theme}
-        variant={variant}
-        width={width}
-        altText={card.title}
-      />
+      <div data-part="mockup-area" style={{ display: 'contents' }}>
+        <Mockup
+          slot={slots[0]!}
+          frame={card.mockupFrame}
+          theme={theme}
+          variant={variant}
+          width={width}
+          altText={card.title}
+        />
+      </div>
     )
   }
 
@@ -46,6 +48,7 @@ export const MockupArea = ({ card, theme, variant, maxWidth, maxHeight }: Mockup
 
   return (
     <div
+      data-part="mockup-area"
       style={{
         position: 'relative',
         width: width + offsetX * (count - 1),

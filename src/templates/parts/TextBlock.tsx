@@ -57,13 +57,13 @@ export const TextBlock = ({ card, theme, variant, align }: TextBlockProps) => {
   }
 
   return (
-    <div style={containerStyle}>
+    <div style={containerStyle} data-part="text">
       <h1 style={titleStyle}>{card.title}</h1>
       <p style={descriptionStyle}>{card.description}</p>
       {card.stack.length > 0 && (
         <div style={chipRowStyle}>
           {card.stack.map((item) => (
-            <span key={item} style={chipStyle}>
+            <span key={item} style={chipStyle} data-part="chip">
               {item}
             </span>
           ))}

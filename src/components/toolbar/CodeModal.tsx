@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
+import { Highlight, themes } from 'prism-react-renderer'
 import { buildCardCode, downloadCardCode } from '../../export/exportCode'
 import type { CodeExportFormat } from '../../export/exportCode'
 import { useActiveCard } from '../../state/useActiveCard'
@@ -79,9 +80,19 @@ export const CodeModal = ({ onClose }: CodeModalProps) => {
           </button>
         </header>
 
-        <pre className="modal__code">
-          <code>{code}</code>
-        </pre>
+        <Highlight code={code} language={format === 'react' ? 'tsx' : 'markup'} theme={themes.vsDark}>
+          {({ tokens, getLineProps, getTokenProps }) => (
+            <pre className="modal__code">
+              {tokens.map((line, lineIndex) => (
+                <span key={lineIndex} {...getLineProps({ line })} style={{ display: 'block' }}>
+                  {line.map((token, tokenIndex) => (
+                    <span key={tokenIndex} {...getTokenProps({ token })} />
+                  ))}
+                </span>
+              ))}
+            </pre>
+          )}
+        </Highlight>
 
         <footer className="modal__actions">
           {errorMessage !== null && <span className="export-bar__error">{errorMessage}</span>}
